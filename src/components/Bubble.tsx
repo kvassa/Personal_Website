@@ -9,6 +9,8 @@ interface BubbleProps {
   index: number;
   /** 'intro': blow out from the wand. 'settled': already floating in place. */
   mode: 'intro' | 'settled';
+  /** Measured on-screen wand-tip position (px). Falls back to WAND_SPAWN. */
+  spawnPoint: { x: number; y: number } | null;
   isMobile: boolean;
   dimmed: boolean;
   onSettled: (id: BubbleDef['id']) => void;
@@ -29,7 +31,16 @@ const DROPLET_ANGLES = [0, 60, 120, 180, 240, 300].map((deg) => (deg * Math.PI) 
 const STAGGER = 0.5;
 const ENTRANCE_DURATION = 1.4;
 
-export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopStart }: BubbleProps) {
+export function Bubble({
+  def,
+  index,
+  mode,
+  spawnPoint,
+  isMobile,
+  dimmed,
+  onSettled,
+  onPopStart,
+}: BubbleProps) {
   const navigate = useNavigate();
   const reduced = useReducedMotion() ?? false;
   const [settled, setSettled] = useState(mode === 'settled');
@@ -40,13 +51,16 @@ export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopSta
   const size = def.size[bp];
 
   // Spawn offset (px) from the wand tip to this bubble's settled anchor.
+  // Prefers the measured on-screen wand-tip so every bubble visibly emerges
+  // from the same point — the ring of the girl's wand.
   const spawnOffset = useMemo(() => {
-    const spawn = WAND_SPAWN[bp];
+    const sx = spawnPoint ? spawnPoint.x : (WAND_SPAWN[bp].x / 100) * window.innerWidth;
+    const sy = spawnPoint ? spawnPoint.y : (WAND_SPAWN[bp].y / 100) * window.innerHeight;
     return {
-      dx: ((spawn.x - anchor.x) / 100) * window.innerWidth,
-      dy: ((spawn.y - anchor.y) / 100) * window.innerHeight,
+      dx: sx - (anchor.x / 100) * window.innerWidth,
+      dy: sy - (anchor.y / 100) * window.innerHeight,
     };
-  }, [bp, anchor.x, anchor.y]);
+  }, [bp, anchor.x, anchor.y, spawnPoint]);
 
   // Per-bubble randomized idle-wobble parameters, generated once so each
   // bubble drifts and morphs with its own rhythm while staying at its anchor
@@ -87,10 +101,18 @@ export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopSta
       : reduced
         ? { x: 0, y: 0, scale: 1, opacity: 1 }
         : {
-            x: [spawnOffset.dx, spawnOffset.dx * 0.5, 0],
-            y: [spawnOffset.dy, spawnOffset.dy * 0.6 - 70, 0],
-            scale: [0.12, 0.6, 1.1, 1],
-            opacity: [0, 1, 1, 1],
+            // Gentle float from the wand tip: linger tiny at the ring, then
+            // rise along a smooth arc while growing to full size.
+            x: [spawnOffset.dx, spawnOffset.dx, spawnOffset.dx * 0.55, spawnOffset.dx * 0.18, 0],
+            y: [
+              spawnOffset.dy,
+              spawnOffset.dy - 10,
+              spawnOffset.dy * 0.7 - 50,
+              spawnOffset.dy * 0.28 - 80,
+              0,
+            ],
+            scale: [0.06, 0.22, 0.55, 0.85, 1],
+            opacity: [0, 1, 1, 1, 1],
           };
 
   const buttonTransition = popping
@@ -101,6 +123,7 @@ export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopSta
           duration: reduced ? 0.3 : ENTRANCE_DURATION,
           delay: index * (reduced ? 0.05 : STAGGER),
           ease: 'easeOut' as const,
+          times: [0, 0.16, 0.5, 0.78, 1],
         };
 
   return (
@@ -165,6 +188,24 @@ export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopSta
           </motion.div>
           <span className="bubble-label">{def.label}</span>
         </motion.button>
+
+        {popping && (
+          <motion.div
+            className="bubble-burst"
+            style={{
+              width: size,
+              height: size,
+              marginLeft: -size / 2,
+              marginTop: -size / 2,
+            }}
+            initial={{ scale: 0.5, opacity: 0.7 }}
+            animate={{
+              scale: (2.4 * Math.max(window.innerWidth, window.innerHeight)) / size,
+              opacity: 0,
+            }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+          />
+        )}
 
         {popping &&
           DROPLET_ANGLES.map((angle, i) => (

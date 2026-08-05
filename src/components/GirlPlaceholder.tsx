@@ -1,9 +1,16 @@
 /**
  * Placeholder character art: a simple illustrated girl holding a bubble wand.
  * Swap this component's contents for the real artwork later — keep the wand
- * ring near the upper-left of the drawing (and update WAND_SPAWN in
- * src/data/bubbles.ts if its on-screen position changes).
+ * ring near the upper-left of the drawing and update WAND_TIP_FRACTION to
+ * the ring's position within the artwork's box.
  */
+
+/**
+ * The wand ring's center as a fraction of the rendered artwork's bounding
+ * box (ring at 24,46 in the 200x240 viewBox). Used to measure the real
+ * on-screen spawn point for the bubbles.
+ */
+export const WAND_TIP_FRACTION = { x: 24 / 200, y: 46 / 240 };
 export function GirlPlaceholder() {
   return (
     <svg

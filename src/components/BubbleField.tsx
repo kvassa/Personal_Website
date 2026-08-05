@@ -7,6 +7,8 @@ import { Bubble } from './Bubble';
 interface BubbleFieldProps {
   /** 'intro': bubbles blow out of the wand, staggered. 'settled': render in place. */
   mode: 'intro' | 'settled';
+  /** Measured on-screen wand-tip position (px); bubbles originate here. */
+  spawnPoint: { x: number; y: number } | null;
   onAllSettled: () => void;
 }
 
@@ -14,7 +16,7 @@ interface BubbleFieldProps {
  * Renders the five navigation bubbles at their scattered anchors and reports
  * when the last one has finished its entrance so the girl can slide away.
  */
-export function BubbleField({ mode, onAllSettled }: BubbleFieldProps) {
+export function BubbleField({ mode, spawnPoint, onAllSettled }: BubbleFieldProps) {
   const isMobile = useIsMobile();
   const settledIds = useRef(new Set<BubbleDef['id']>());
   const [poppingId, setPoppingId] = useState<BubbleDef['id'] | null>(null);
@@ -32,6 +34,7 @@ export function BubbleField({ mode, onAllSettled }: BubbleFieldProps) {
           def={def}
           index={index}
           mode={mode}
+          spawnPoint={spawnPoint}
           isMobile={isMobile}
           dimmed={poppingId !== null && poppingId !== def.id}
           onSettled={handleSettled}
