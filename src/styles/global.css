@@ -1,10 +1,10 @@
 :root {
-  --color-bg: #ffe1ea; /* baby pink */
-  --color-bubble: #f7a8c4; /* darker pink, same hue family */
-  --color-bubble-deep: #ef7fab;
-  --color-text: #7a2d4e;
-  --color-highlight: rgba(255, 255, 255, 0.85);
-  --font-display: 'Baloo 2', 'Fredoka', system-ui, sans-serif;
+  --color-bg-a: #cbe3ff;
+  --color-bg-b: #b4bbff;
+  --color-text: #443d7a;
+  --color-heading: #5a4fb5;
+  --color-accent: #816ef9;
+  --font-display: 'Quicksand', system-ui, sans-serif;
 }
 
 * {
@@ -20,7 +20,8 @@ body,
 }
 
 body {
-  background: var(--color-bg);
+  background: linear-gradient(147.25deg, var(--color-bg-a) 9.59%, var(--color-bg-b) 99.99%)
+    fixed;
   color: var(--color-text);
   font-family: var(--font-display);
   overflow-x: hidden;
@@ -39,7 +40,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-bubble-deep);
+  outline: 3px solid var(--color-accent);
   outline-offset: 3px;
   border-radius: 999px;
 }
@@ -47,28 +48,28 @@ a {
 h1,
 h2,
 h3 {
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
-/* Themed placeholder cards used on subpages */
+/* Frosted-glass content cards used on subpages */
 .card {
-  background: rgba(255, 255, 255, 0.55);
-  border: 2px solid rgba(239, 127, 171, 0.35);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   border-radius: 28px;
   padding: 1.5rem 1.75rem;
-  box-shadow: 0 8px 24px rgba(239, 127, 171, 0.2);
+  box-shadow: 0 8px 32px rgba(100, 90, 200, 0.18);
+  backdrop-filter: blur(6px);
 }
 
 .card h2 {
-  color: var(--color-bubble-deep);
+  color: var(--color-heading);
   margin-bottom: 0.5rem;
 }
 
 .card p,
 .card li {
-  font-family: 'Fredoka', var(--font-display);
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.6;
 }
 

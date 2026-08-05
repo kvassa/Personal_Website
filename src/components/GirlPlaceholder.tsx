@@ -13,13 +13,13 @@ export function GirlPlaceholder() {
       focusable="false"
     >
       {/* wand stick + ring, raised in her left hand (viewer's upper-left) */}
-      <line x1="62" y1="118" x2="30" y2="58" stroke="#b3577d" strokeWidth="6" strokeLinecap="round" />
-      <circle cx="24" cy="46" r="16" fill="none" stroke="#ef7fab" strokeWidth="6" />
+      <line x1="62" y1="118" x2="30" y2="58" stroke="#6d5bd0" strokeWidth="6" strokeLinecap="round" />
+      <circle cx="24" cy="46" r="16" fill="none" stroke="#816ef9" strokeWidth="6" />
       <circle cx="24" cy="46" r="10" fill="rgba(255,255,255,0.45)" />
 
       {/* dress */}
-      <path d="M100 128 L58 226 Q100 240 142 226 Z" fill="#ef7fab" />
-      <path d="M100 128 L70 226 Q100 236 130 226 Z" fill="#f7a8c4" opacity="0.6" />
+      <path d="M100 128 L58 226 Q100 240 142 226 Z" fill="#816ef9" />
+      <path d="M100 128 L70 226 Q100 236 130 226 Z" fill="#a78bfa" opacity="0.6" />
 
       {/* arms */}
       <line x1="84" y1="150" x2="62" y2="118" stroke="#f0b9a2" strokeWidth="10" strokeLinecap="round" />
@@ -39,9 +39,9 @@ export function GirlPlaceholder() {
       {/* face */}
       <circle cx="88" cy="96" r="3.5" fill="#4a2b35" />
       <circle cx="112" cy="96" r="3.5" fill="#4a2b35" />
-      <path d="M92 110 Q100 118 108 110" fill="none" stroke="#c96a8e" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="80" cy="106" r="5" fill="#f7a8c4" opacity="0.7" />
-      <circle cx="120" cy="106" r="5" fill="#f7a8c4" opacity="0.7" />
+      <path d="M92 110 Q100 118 108 110" fill="none" stroke="#8a6fd8" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="80" cy="106" r="5" fill="#a78bfa" opacity="0.7" />
+      <circle cx="120" cy="106" r="5" fill="#a78bfa" opacity="0.7" />
 
       {/* legs */}
       <line x1="88" y1="228" x2="88" y2="240" stroke="#f0b9a2" strokeWidth="9" strokeLinecap="round" />

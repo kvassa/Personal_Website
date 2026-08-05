@@ -19,7 +19,7 @@ const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
 /** Random organic 8-value border-radius, e.g. "46% 54% 58% 42% / 44% 57% 43% 56%". */
 function blobRadius(): string {
-  const r = () => `${Math.round(rand(40, 60))}%`;
+  const r = () => `${Math.round(rand(44, 56))}%`;
   return `${r()} ${r()} ${r()} ${r()} / ${r()} ${r()} ${r()} ${r()}`;
 }
 
@@ -121,6 +121,7 @@ export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopSta
         <motion.button
           type="button"
           className="bubble-button"
+          style={{ '--d': `${size}px` } as React.CSSProperties}
           aria-label={`Go to ${def.label} page`}
           initial={
             mode === 'settled'
@@ -144,8 +145,7 @@ export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopSta
           }}
         >
           <motion.div
-            className="bubble-skin"
-            style={{ width: size, height: size }}
+            className={`bubble-skin bubble-skin--${def.id}`}
             animate={
               wobbling
                 ? {
@@ -161,8 +161,9 @@ export function Bubble({ def, index, mode, isMobile, dimmed, onSettled, onPopSta
                 : { duration: 0.2 }
             }
           >
-            <span className="bubble-label">{def.label}</span>
+            <i className="bubble-glints" aria-hidden="true" />
           </motion.div>
+          <span className="bubble-label">{def.label}</span>
         </motion.button>
 
         {popping &&

@@ -42,12 +42,15 @@ export function PageLayout({ title, children }: PageLayoutProps) {
         aria-label="Back to home"
         onClick={() => navigate('/')}
       >
-        <motion.div className="bubble-skin" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
+        <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
+          <div className="bubble-skin">
+            <i className="bubble-glints" aria-hidden="true" />
+          </div>
           <span className="bubble-label">Home</span>
         </motion.div>
       </button>
 
-      <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', color: 'var(--color-bubble-deep)' }}>
+      <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', color: 'var(--color-heading)' }}>
         {title}
       </h1>
       {children}

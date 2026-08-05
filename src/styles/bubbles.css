@@ -5,53 +5,145 @@
 }
 
 .bubble-button {
+  /* --d (bubble diameter) is set inline per bubble; every glassy detail
+     below scales from it so all sizes render proportionally. */
+  --d: 180px;
   display: block;
   position: relative;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
+/*
+ * Iridescent glass bubble, translated from the reference design:
+ * a stack of soft radial color glows over a translucent base, white inset
+ * glow, a large blurred white rim, and small blurred arc highlights.
+ * Per-bubble hues come from the --base / --glow-a / --glow-b variables.
+ */
 .bubble-skin {
+  --base: #816ef9;
+  --glow-a: #419aec;
+  --glow-b: #b541ec;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: var(--d);
+  height: var(--d);
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 30% 28%,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 214, 230, 0.85) 22%,
-    rgba(247, 168, 196, 0.88) 60%,
-    rgba(239, 127, 171, 0.92) 100%
-  );
+  opacity: 0.85;
+  background:
+    radial-gradient(71.34% 71.34% at 20.03% 18.21%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97.45%),
+    radial-gradient(58.36% 58.36% at 13.41% 63.07%, var(--glow-a) 0%, rgba(99, 65, 236, 0) 100%),
+    radial-gradient(45.73% 45.73% at 70.47% 50%, var(--glow-b) 0%, rgba(212, 65, 236, 0) 100%),
+    var(--base);
   box-shadow:
-    0 10px 28px rgba(239, 127, 171, 0.4),
-    inset 0 -6px 14px rgba(239, 127, 171, 0.45),
-    inset 0 4px 10px rgba(255, 255, 255, 0.7);
+    inset calc(var(--d) * 0.026) calc(var(--d) * 0.026) calc(var(--d) * 0.262) rgba(255, 255, 255, 0.25),
+    inset calc(var(--d) * -0.0064) calc(var(--d) * -0.0064) calc(var(--d) * 0.123) rgba(255, 255, 255, 0.22);
 }
 
-.bubble-skin::after {
+/* Large soft white rim hugging the bubble's edge */
+.bubble-skin::before {
   content: '';
   position: absolute;
-  top: 14%;
-  left: 18%;
-  width: 30%;
-  height: 18%;
-  border-radius: 50%;
-  background: var(--color-highlight);
-  filter: blur(1px);
-  transform: rotate(-28deg);
+  inset: calc(var(--d) * -0.016);
+  border-radius: inherit; /* follows the blob morph so the rim never detaches */
+  border: calc(var(--d) * 0.091) solid #ffffff;
+  filter: blur(calc(var(--d) * 0.061));
+  opacity: 0.8;
   pointer-events: none;
 }
 
+/* Main arc highlight, upper left */
+.bubble-skin::after {
+  content: '';
+  position: absolute;
+  left: 27%;
+  top: 24%;
+  width: 26%;
+  height: 8.5%;
+  border-radius: 50%;
+  background: #ffffff;
+  filter: blur(calc(var(--d) * 0.022));
+  transform: rotate(-39deg);
+  pointer-events: none;
+}
+
+/* Two small glint dots trailing below the arc highlight */
+.bubble-glints {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bubble-glints::before {
+  content: '';
+  position: absolute;
+  left: 25.5%;
+  top: 48%;
+  width: 4%;
+  height: 4%;
+  border-radius: 50%;
+  background: #ffffff;
+  filter: blur(calc(var(--d) * 0.012));
+}
+
+.bubble-glints::after {
+  content: '';
+  position: absolute;
+  left: 22.5%;
+  top: 54%;
+  width: 4%;
+  height: 6.5%;
+  border-radius: 50%;
+  background: #ffffff;
+  filter: blur(calc(var(--d) * 0.014));
+  transform: rotate(13deg);
+}
+
+/* Per-bubble iridescent palettes, sampled from the reference frame */
+.bubble-skin--education {
+  --base: #816ef9;
+  --glow-a: #419aec;
+  --glow-b: #b541ec;
+}
+
+.bubble-skin--projects {
+  --base: #a347eb;
+  --glow-a: #53acff;
+  --glow-b: rgba(236, 147, 65, 0.4);
+}
+
+.bubble-skin--art {
+  --base: #498ef5;
+  --glow-a: #9641ec;
+  --glow-b: #b541ec;
+}
+
+.bubble-skin--experience {
+  --base: rgba(235, 111, 71, 0.8);
+  --glow-a: #51abff;
+  --glow-b: #b541ec;
+}
+
+.bubble-skin--about {
+  --base: rgba(163, 71, 235, 0.6);
+  --glow-a: rgba(236, 116, 65, 0.5);
+  --glow-b: rgba(120, 65, 236, 0.8);
+}
+
+/* Label sits above the translucent skin so text stays crisp */
 .bubble-label {
-  font-weight: 700;
-  color: var(--color-text);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffffff;
   text-align: center;
-  line-height: 1.15;
-  padding: 0 14%;
-  font-size: clamp(0.95rem, 1.6vw, 1.35rem);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  line-height: 1.2;
+  padding: 0 12%;
+  font-size: clamp(0.85rem, calc(var(--d) * 0.1), 1.45rem);
+  text-shadow: 0 1px 10px rgba(80, 60, 160, 0.45);
   pointer-events: none;
 }
 
@@ -63,11 +155,7 @@
   height: 14px;
   margin: -7px 0 0 -7px;
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 35% 30%,
-    rgba(255, 255, 255, 0.9),
-    var(--color-bubble-deep)
-  );
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), #a78bfa);
   pointer-events: none;
 }
 
@@ -85,12 +173,13 @@
 }
 
 .girl-name {
-  font-size: clamp(1.6rem, 3.4vw, 2.8rem);
-  font-weight: 800;
-  color: var(--color-bubble-deep);
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ffffff;
   text-shadow:
-    0 2px 0 rgba(255, 255, 255, 0.8),
-    0 6px 18px rgba(239, 127, 171, 0.45);
+    0 2px 6px rgba(110, 95, 220, 0.5),
+    0 8px 28px rgba(90, 80, 200, 0.5);
   white-space: nowrap;
 }
 
@@ -105,13 +194,9 @@
   top: 1.25rem;
   left: 1.25rem;
   z-index: 20;
-}
-
-.home-bubble .bubble-skin {
-  width: clamp(64px, 8vw, 84px);
-  height: clamp(64px, 8vw, 84px);
+  --d: 76px;
 }
 
 .home-bubble .bubble-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }

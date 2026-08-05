@@ -4,7 +4,7 @@ const placeholderStyle: React.CSSProperties = {
   aspectRatio: '1',
   borderRadius: '24px',
   background:
-    'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.7), rgba(247,168,196,0.8))',
+    'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.7), rgba(167,139,250,0.75))',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
