@@ -147,6 +147,23 @@
   pointer-events: none;
 }
 
+/* Soft wash that expands from a popped bubble to fill the screen,
+   fading the landing page into the opened page */
+.bubble-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(226, 233, 255, 0.7) 45%,
+    rgba(180, 187, 255, 0) 72%
+  );
+  pointer-events: none;
+  z-index: 40;
+}
+
 .bubble-droplet {
   position: absolute;
   top: 50%;
