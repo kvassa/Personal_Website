@@ -1,0 +1,87 @@
+:root {
+  --color-bg: #ffe1ea; /* baby pink */
+  --color-bubble: #f7a8c4; /* darker pink, same hue family */
+  --color-bubble-deep: #ef7fab;
+  --color-text: #7a2d4e;
+  --color-highlight: rgba(255, 255, 255, 0.85);
+  --font-display: 'Baloo 2', 'Fredoka', system-ui, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-display);
+  overflow-x: hidden;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-bubble-deep);
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Themed placeholder cards used on subpages */
+.card {
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(239, 127, 171, 0.35);
+  border-radius: 28px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 8px 24px rgba(239, 127, 171, 0.2);
+}
+
+.card h2 {
+  color: var(--color-bubble-deep);
+  margin-bottom: 0.5rem;
+}
+
+.card p,
+.card li {
+  font-family: 'Fredoka', var(--font-display);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.card ul {
+  padding-left: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
