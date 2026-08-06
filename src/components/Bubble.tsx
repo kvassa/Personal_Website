@@ -2,14 +2,15 @@ import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import type { BubbleDef } from '../data/bubbles';
-import { WAND_SPAWN } from '../data/bubbles';
 
 interface BubbleProps {
   def: BubbleDef;
   index: number;
-  /** 'intro': blow out from the wand. 'settled': already floating in place. */
+  /** 'intro': play the emergence animation. 'settled': already floating in place. */
   mode: 'intro' | 'settled';
-  /** Measured on-screen wand-tip position (px). Falls back to WAND_SPAWN. */
+  /** The main bubble grows in place; satellites emerge from the spawn point. */
+  isMain?: boolean;
+  /** On-screen point (px) satellites emerge from — the main bubble's center. */
   spawnPoint: { x: number; y: number } | null;
   isMobile: boolean;
   dimmed: boolean;
@@ -35,6 +36,7 @@ export function Bubble({
   def,
   index,
   mode,
+  isMain = false,
   spawnPoint,
   isMobile,
   dimmed,
@@ -50,17 +52,15 @@ export function Bubble({
   const anchor = def.anchor[bp];
   const size = def.size[bp];
 
-  // Spawn offset (px) from the wand tip to this bubble's settled anchor.
-  // Prefers the measured on-screen wand-tip so every bubble visibly emerges
-  // from the same point — the ring of the girl's wand.
+  // Offset (px) from the emergence point (the main bubble's center) to this
+  // bubble's settled anchor. The main bubble itself grows in place.
   const spawnOffset = useMemo(() => {
-    const sx = spawnPoint ? spawnPoint.x : (WAND_SPAWN[bp].x / 100) * window.innerWidth;
-    const sy = spawnPoint ? spawnPoint.y : (WAND_SPAWN[bp].y / 100) * window.innerHeight;
+    if (isMain || !spawnPoint) return { dx: 0, dy: 0 };
     return {
-      dx: sx - (anchor.x / 100) * window.innerWidth,
-      dy: sy - (anchor.y / 100) * window.innerHeight,
+      dx: spawnPoint.x - (anchor.x / 100) * window.innerWidth,
+      dy: spawnPoint.y - (anchor.y / 100) * window.innerHeight,
     };
-  }, [bp, anchor.x, anchor.y, spawnPoint]);
+  }, [isMain, anchor.x, anchor.y, spawnPoint]);
 
   // Per-bubble randomized idle-wobble parameters, generated once so each
   // bubble drifts and morphs with its own rhythm while staying at its anchor
@@ -91,43 +91,50 @@ export function Bubble({
 
   const wobbling = settled && !reduced && !popping;
 
-  // Entrance / pop / rest states for the button element.
-  // x/y must stay pinned at 0 here — omitting them would make Motion animate
-  // them back to their `initial` spawn-offset values mid-pop.
+  // x/y stay pinned at 0 in the pop target — omitting them would make Motion
+  // animate them back to their `initial` spawn-offset values mid-pop.
   const buttonAnimate = popping
     ? { x: 0, y: 0, scale: [1, 1.28, 0], opacity: [1, 1, 0] }
     : settled || mode === 'settled'
       ? { x: 0, y: 0, scale: 1, opacity: dimmed ? 0.35 : 1 }
       : reduced
         ? { x: 0, y: 0, scale: 1, opacity: 1 }
-        : {
-            // Gentle float from the wand tip: linger tiny at the ring, then
-            // rise along a smooth arc while growing to full size.
-            x: [spawnOffset.dx, spawnOffset.dx, spawnOffset.dx * 0.55, spawnOffset.dx * 0.18, 0],
-            y: [
-              spawnOffset.dy,
-              spawnOffset.dy - 10,
-              spawnOffset.dy * 0.7 - 50,
-              spawnOffset.dy * 0.28 - 80,
-              0,
-            ],
-            scale: [0.06, 0.22, 0.55, 0.85, 1],
-            opacity: [0, 1, 1, 1, 1],
-          };
+        : isMain
+          ? // Grow softly in place at the center, like the Adobe comp.
+            { x: 0, y: 0, scale: [0.25, 1.07, 1], opacity: [0, 1, 1] }
+          : {
+              // Slip out of the main bubble, then float up a smooth arc to
+              // the anchor while growing to full size.
+              x: [spawnOffset.dx, spawnOffset.dx, spawnOffset.dx * 0.55, spawnOffset.dx * 0.18, 0],
+              y: [
+                spawnOffset.dy,
+                spawnOffset.dy - 8,
+                spawnOffset.dy * 0.7 - 30,
+                spawnOffset.dy * 0.28 - 50,
+                0,
+              ],
+              scale: [0.08, 0.3, 0.6, 0.87, 1],
+              opacity: [1, 1, 1, 1, 1],
+            };
 
   const buttonTransition = popping
     ? { duration: 0.45, times: [0, 0.45, 1], ease: 'easeIn' as const }
     : settled
       ? { duration: 0.3 }
-      : {
-          duration: reduced ? 0.3 : ENTRANCE_DURATION,
-          delay: index * (reduced ? 0.05 : STAGGER),
-          ease: 'easeOut' as const,
-          times: [0, 0.16, 0.5, 0.78, 1],
-        };
+      : isMain
+        ? { duration: reduced ? 0.3 : 1.1, ease: 'easeOut' as const, times: [0, 0.75, 1] }
+        : {
+            duration: reduced ? 0.3 : ENTRANCE_DURATION,
+            delay: index * (reduced ? 0.05 : STAGGER),
+            ease: 'easeOut' as const,
+            times: [0, 0.14, 0.5, 0.78, 1],
+          };
 
   return (
-    <div className="bubble-anchor" style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}>
+    <div
+      className={`bubble-anchor${isMain ? ' bubble-anchor--main' : ''}`}
+      style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
+    >
       <motion.div
         animate={wobbling ? { x: wobble.driftX, y: wobble.driftY } : { x: 0, y: 0 }}
         transition={
@@ -144,14 +151,16 @@ export function Bubble({
         <motion.button
           type="button"
           className="bubble-button"
-          style={{ '--d': `${size}px` } as React.CSSProperties}
-          aria-label={`Go to ${def.label} page`}
+          style={{ ['--d' as string]: `${size}px` }}
+          aria-label={isMain ? 'More about me — Kaavya Vassa' : `Go to ${def.label} page`}
           initial={
             mode === 'settled'
               ? false
               : reduced
                 ? { opacity: 0 }
-                : { x: spawnOffset.dx, y: spawnOffset.dy, scale: 0.12, opacity: 0 }
+                : isMain
+                  ? { scale: 0.25, opacity: 0 }
+                  : { x: spawnOffset.dx, y: spawnOffset.dy, scale: 0.08, opacity: 1 }
           }
           animate={buttonAnimate}
           transition={buttonTransition}
@@ -186,7 +195,7 @@ export function Bubble({
           >
             <i className="bubble-glints" aria-hidden="true" />
           </motion.div>
-          <span className="bubble-label">{def.label}</span>
+          <span className={`bubble-label${isMain ? ' bubble-label--main' : ''}`}>{def.label}</span>
         </motion.button>
 
         {popping && (

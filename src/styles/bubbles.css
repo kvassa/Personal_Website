@@ -4,6 +4,12 @@
   z-index: 5;
 }
 
+/* The main bubble sits above the satellites so they appear to slip out
+   from behind it while emerging */
+.bubble-anchor--main {
+  z-index: 6;
+}
+
 .bubble-button {
   /* --d (bubble diameter) is set inline per bubble; every glassy detail
      below scales from it so all sizes render proportionally. */
@@ -164,6 +170,13 @@
   z-index: 40;
 }
 
+/* Larger name label on the main bubble */
+.bubble-label--main {
+  font-size: clamp(1.05rem, calc(var(--d) * 0.105), 1.8rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
 .bubble-droplet {
   position: absolute;
   top: 50%;
@@ -174,35 +187,6 @@
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), #a78bfa);
   pointer-events: none;
-}
-
-/* Girl character container, fixed to the bottom-right corner */
-.girl {
-  position: fixed;
-  right: 3vw;
-  bottom: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  pointer-events: none;
-}
-
-.girl-name {
-  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #ffffff;
-  text-shadow:
-    0 2px 6px rgba(110, 95, 220, 0.5),
-    0 8px 28px rgba(90, 80, 200, 0.5);
-  white-space: nowrap;
-}
-
-.girl-art {
-  width: clamp(150px, 20vw, 240px);
-  height: auto;
 }
 
 /* Small home bubble on subpages */
