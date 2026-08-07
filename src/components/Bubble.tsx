@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import type { BubbleDef } from '../data/bubbles';
-import { EMERGE_EASE } from '../data/bubbles';
 
 interface BubbleProps {
   def: BubbleDef;
@@ -91,17 +90,29 @@ export function Bubble({
 
   const wobbling = settled && !reduced && !popping;
 
-  // Gently bowed slide-out path: a midpoint offset perpendicular to the
-  // straight line (alternating side per bubble) so the glide reads as a
-  // natural float rather than a mechanical straight line.
+  // Smooth curved glide from behind the main bubble to the anchor: a
+  // quadratic bezier (control point bowed perpendicular to the travel line,
+  // alternating side per bubble) sampled densely with the ease baked into
+  // the sample spacing. Segments then play with linear timing, giving one
+  // continuous curve and one continuous speed profile — no corners, no
+  // mid-flight re-acceleration.
   const path = useMemo(() => {
     const { dx, dy } = spawnOffset;
     const len = Math.hypot(dx, dy) || 1;
-    const bow = len * 0.12 * (index % 2 === 0 ? 1 : -1);
-    return {
-      x: [dx, dx * 0.5 + (-dy / len) * bow, 0],
-      y: [dy, dy * 0.5 + (dx / len) * bow, 0],
-    };
+    const bow = len * 0.08 * (index % 2 === 0 ? 1 : -1);
+    const cx = dx * 0.5 + (-dy / len) * bow;
+    const cy = dy * 0.5 + (dx / len) * bow;
+    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+    const STEPS = 16;
+    const xs: number[] = [];
+    const ys: number[] = [];
+    for (let i = 0; i <= STEPS; i++) {
+      const t = easeInOut(i / STEPS);
+      const u = 1 - t;
+      xs.push(u * u * dx + 2 * u * t * cx); // t² term is 0 (end point 0,0)
+      ys.push(u * u * dy + 2 * u * t * cy);
+    }
+    return { x: xs, y: ys };
   }, [spawnOffset, index]);
 
   // x/y stay pinned at 0 in the pop target — omitting them would make Motion
@@ -132,10 +143,9 @@ export function Bubble({
       : isMain
         ? { duration: reduced ? 0.3 : 0.5, ease: 'easeOut' as const }
         : {
-            duration: reduced ? 0.3 : (def.emerge?.duration ?? 1.5),
+            duration: reduced ? 0.3 : (def.emerge?.duration ?? 1.9),
             delay: reduced ? index * 0.05 : (def.emerge?.start ?? 0),
-            ease: EMERGE_EASE,
-            times: [0, 0.55, 1],
+            ease: 'linear' as const,
           };
 
   return (

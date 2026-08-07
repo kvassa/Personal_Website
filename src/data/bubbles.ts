@@ -40,8 +40,8 @@ export const MAIN_BUBBLE: BubbleDef = {
 
 /**
  * The four satellites, in Kaavya's emergence order. Timing is a compressed
- * version of her sequence — same order and sequential feel, ~1.5s per slide
- * with slight overlap so the whole intro lands around 4.5s instead of 10s.
+ * version of her sequence — same order and sequential feel, ~1.9s per glide
+ * with slight overlap so the whole intro lands around 6.5s instead of 10s.
  */
 export const SATELLITE_BUBBLES: BubbleDef[] = [
   {
@@ -50,7 +50,7 @@ export const SATELLITE_BUBBLES: BubbleDef[] = [
     path: '/education',
     anchor: { desktop: { x: 16.4, y: 72.3 }, mobile: { x: 24, y: 76 } },
     size: { desktop: 190, mobile: 108 },
-    emerge: { start: 0, duration: 1.5 },
+    emerge: { start: 0, duration: 1.9 },
   },
   {
     id: 'projects',
@@ -58,7 +58,7 @@ export const SATELLITE_BUBBLES: BubbleDef[] = [
     path: '/projects',
     anchor: { desktop: { x: 80.2, y: 77.7 }, mobile: { x: 77, y: 82 } },
     size: { desktop: 212, mobile: 118 },
-    emerge: { start: 1.05, duration: 1.5 },
+    emerge: { start: 1.5, duration: 1.9 },
   },
   {
     id: 'art',
@@ -66,7 +66,7 @@ export const SATELLITE_BUBBLES: BubbleDef[] = [
     path: '/art',
     anchor: { desktop: { x: 77.5, y: 23.4 }, mobile: { x: 76, y: 13 } },
     size: { desktop: 186, mobile: 104 },
-    emerge: { start: 2.1, duration: 1.5 },
+    emerge: { start: 3.0, duration: 1.9 },
   },
   {
     id: 'experience',
@@ -74,11 +74,9 @@ export const SATELLITE_BUBBLES: BubbleDef[] = [
     path: '/experience',
     anchor: { desktop: { x: 24, y: 24.6 }, mobile: { x: 23, y: 17 } },
     size: { desktop: 214, mobile: 116 },
-    emerge: { start: 3.15, duration: 1.5 },
+    emerge: { start: 4.5, duration: 1.9 },
   },
 ];
 
 export const ALL_BUBBLES: BubbleDef[] = [MAIN_BUBBLE, ...SATELLITE_BUBBLES];
 
-/** Smooth glide for the slide-outs: gentle start, soft settle. */
-export const EMERGE_EASE: [number, number, number, number] = [0.42, 0, 0.22, 1];
