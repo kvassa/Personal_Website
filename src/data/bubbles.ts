@@ -35,46 +35,50 @@ export const MAIN_BUBBLE: BubbleDef = {
   label: 'Kaavya Vassa',
   path: '/about',
   anchor: { desktop: { x: 50, y: 50 }, mobile: { x: 50, y: 45 } },
-  size: { desktop: 440, mobile: 195 },
+  size: { desktop: 300, mobile: 165 },
 };
 
-/** The four satellites, in Kaavya's emergence order. */
+/**
+ * The four satellites, in Kaavya's emergence order. Timing is a compressed
+ * version of her sequence — same order and sequential feel, ~1.5s per slide
+ * with slight overlap so the whole intro lands around 4.5s instead of 10s.
+ */
 export const SATELLITE_BUBBLES: BubbleDef[] = [
   {
     id: 'education',
     label: 'Education',
     path: '/education',
     anchor: { desktop: { x: 16.4, y: 72.3 }, mobile: { x: 24, y: 76 } },
-    size: { desktop: 308, mobile: 132 },
-    emerge: { start: 0, duration: 2.5 },
+    size: { desktop: 190, mobile: 108 },
+    emerge: { start: 0, duration: 1.5 },
   },
   {
     id: 'projects',
     label: 'Projects',
     path: '/projects',
     anchor: { desktop: { x: 80.2, y: 77.7 }, mobile: { x: 77, y: 82 } },
-    size: { desktop: 341, mobile: 142 },
-    emerge: { start: 2.5, duration: 2.44 },
+    size: { desktop: 212, mobile: 118 },
+    emerge: { start: 1.05, duration: 1.5 },
   },
   {
     id: 'art',
     label: 'Art',
     path: '/art',
     anchor: { desktop: { x: 77.5, y: 23.4 }, mobile: { x: 76, y: 13 } },
-    size: { desktop: 307, mobile: 128 },
-    emerge: { start: 4.94, duration: 2.57 },
+    size: { desktop: 186, mobile: 104 },
+    emerge: { start: 2.1, duration: 1.5 },
   },
   {
     id: 'experience',
     label: 'Experience',
     path: '/experience',
     anchor: { desktop: { x: 24, y: 24.6 }, mobile: { x: 23, y: 17 } },
-    size: { desktop: 345, mobile: 138 },
-    emerge: { start: 7.51, duration: 2.43 },
+    size: { desktop: 214, mobile: 116 },
+    emerge: { start: 3.15, duration: 1.5 },
   },
 ];
 
 export const ALL_BUBBLES: BubbleDef[] = [MAIN_BUBBLE, ...SATELLITE_BUBBLES];
 
-/** AE's default keyframe interpolation from the export: near-linear ease. */
-export const AE_EASE: [number, number, number, number] = [0.167, 0.167, 0.833, 0.833];
+/** Smooth glide for the slide-outs: gentle start, soft settle. */
+export const EMERGE_EASE: [number, number, number, number] = [0.42, 0, 0.22, 1];

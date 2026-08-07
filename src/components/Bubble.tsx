@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import type { BubbleDef } from '../data/bubbles';
-import { AE_EASE } from '../data/bubbles';
+import { EMERGE_EASE } from '../data/bubbles';
 
 interface BubbleProps {
   def: BubbleDef;
@@ -79,7 +79,8 @@ export function Bubble({
   );
 
   const handlePop = () => {
-    if (popping) return;
+    // Not poppable until fully emerged and settled at its anchor.
+    if (popping || !settled) return;
     if (reduced) {
       navigate(def.path);
       return;
@@ -89,6 +90,19 @@ export function Bubble({
   };
 
   const wobbling = settled && !reduced && !popping;
+
+  // Gently bowed slide-out path: a midpoint offset perpendicular to the
+  // straight line (alternating side per bubble) so the glide reads as a
+  // natural float rather than a mechanical straight line.
+  const path = useMemo(() => {
+    const { dx, dy } = spawnOffset;
+    const len = Math.hypot(dx, dy) || 1;
+    const bow = len * 0.12 * (index % 2 === 0 ? 1 : -1);
+    return {
+      x: [dx, dx * 0.5 + (-dy / len) * bow, 0],
+      y: [dy, dy * 0.5 + (dx / len) * bow, 0],
+    };
+  }, [spawnOffset, index]);
 
   // x/y stay pinned at 0 in the pop target — omitting them would make Motion
   // animate them back to their `initial` spawn-offset values mid-pop.
@@ -104,9 +118,9 @@ export function Bubble({
             { x: 0, y: 0, scale: [0.94, 1], opacity: [0, 1] }
           : {
               // Kaavya's keyframes: slide out from behind the main bubble to
-              // the anchor at FULL size, on a straight line.
-              x: [spawnOffset.dx, 0],
-              y: [spawnOffset.dy, 0],
+              // the anchor at FULL size, on a gently bowed glide.
+              x: path.x,
+              y: path.y,
               scale: 1,
               opacity: 1,
             };
@@ -118,9 +132,10 @@ export function Bubble({
       : isMain
         ? { duration: reduced ? 0.3 : 0.5, ease: 'easeOut' as const }
         : {
-            duration: reduced ? 0.3 : (def.emerge?.duration ?? 2.5),
+            duration: reduced ? 0.3 : (def.emerge?.duration ?? 1.5),
             delay: reduced ? index * 0.05 : (def.emerge?.start ?? 0),
-            ease: AE_EASE,
+            ease: EMERGE_EASE,
+            times: [0, 0.55, 1],
           };
 
   return (
@@ -144,7 +159,10 @@ export function Bubble({
         <motion.button
           type="button"
           className="bubble-button"
-          style={{ ['--d' as string]: `${size}px` }}
+          style={{
+            ['--d' as string]: `${size}px`,
+            pointerEvents: settled && !popping ? undefined : 'none',
+          }}
           aria-label={isMain ? 'More about me — Kaavya Vassa' : `Go to ${def.label} page`}
           initial={
             mode === 'settled'
@@ -157,8 +175,8 @@ export function Bubble({
           }
           animate={buttonAnimate}
           transition={buttonTransition}
-          whileHover={popping ? undefined : { scale: 1.07 }}
-          whileTap={popping ? undefined : { scale: 0.94 }}
+          whileHover={popping || !settled ? undefined : { scale: 1.07 }}
+          whileTap={popping || !settled ? undefined : { scale: 0.94 }}
           onClick={handlePop}
           onAnimationComplete={() => {
             if (popping) {

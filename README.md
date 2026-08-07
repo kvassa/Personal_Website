@@ -24,8 +24,8 @@ npm run preview  # serve the production build
 
 ## Notes
 
-- The intro plays once per browser session (`sessionStorage`); returning to
-  the home page shows the bubbles already settled.
+- The intro replays on every page refresh; navigating back home within the
+  visit shows the bubbles already settled (in-memory flag, not persisted).
 - Bubble labels, routes, positions, and sizes all live in
   `src/data/bubbles.ts` (`MAIN_BUBBLE` + `SATELLITE_BUBBLES`).
 - Kaavya's Adobe sources live in `design/` — see `design/README.md` for the
