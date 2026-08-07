@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import type { BubbleDef } from '../data/bubbles';
+import { AE_EASE } from '../data/bubbles';
 
 interface BubbleProps {
   def: BubbleDef;
@@ -29,8 +30,6 @@ function blobRadius(): string {
 const CIRCLE = '50% 50% 50% 50% / 50% 50% 50% 50%';
 const DROPLET_ANGLES = [0, 60, 120, 180, 240, 300].map((deg) => (deg * Math.PI) / 180);
 
-const STAGGER = 0.5;
-const ENTRANCE_DURATION = 1.4;
 
 export function Bubble({
   def,
@@ -100,21 +99,16 @@ export function Bubble({
       : reduced
         ? { x: 0, y: 0, scale: 1, opacity: 1 }
         : isMain
-          ? // Grow softly in place at the center, like the Adobe comp.
-            { x: 0, y: 0, scale: [0.25, 1.07, 1], opacity: [0, 1, 1] }
+          ? // In the comp the main bubble is simply present at frame 0 —
+            // give it just a soft, quick materialize.
+            { x: 0, y: 0, scale: [0.94, 1], opacity: [0, 1] }
           : {
-              // Slip out of the main bubble, then float up a smooth arc to
-              // the anchor while growing to full size.
-              x: [spawnOffset.dx, spawnOffset.dx, spawnOffset.dx * 0.55, spawnOffset.dx * 0.18, 0],
-              y: [
-                spawnOffset.dy,
-                spawnOffset.dy - 8,
-                spawnOffset.dy * 0.7 - 30,
-                spawnOffset.dy * 0.28 - 50,
-                0,
-              ],
-              scale: [0.08, 0.3, 0.6, 0.87, 1],
-              opacity: [1, 1, 1, 1, 1],
+              // Kaavya's keyframes: slide out from behind the main bubble to
+              // the anchor at FULL size, on a straight line.
+              x: [spawnOffset.dx, 0],
+              y: [spawnOffset.dy, 0],
+              scale: 1,
+              opacity: 1,
             };
 
   const buttonTransition = popping
@@ -122,12 +116,11 @@ export function Bubble({
     : settled
       ? { duration: 0.3 }
       : isMain
-        ? { duration: reduced ? 0.3 : 1.1, ease: 'easeOut' as const, times: [0, 0.75, 1] }
+        ? { duration: reduced ? 0.3 : 0.5, ease: 'easeOut' as const }
         : {
-            duration: reduced ? 0.3 : ENTRANCE_DURATION,
-            delay: index * (reduced ? 0.05 : STAGGER),
-            ease: 'easeOut' as const,
-            times: [0, 0.14, 0.5, 0.78, 1],
+            duration: reduced ? 0.3 : (def.emerge?.duration ?? 2.5),
+            delay: reduced ? index * 0.05 : (def.emerge?.start ?? 0),
+            ease: AE_EASE,
           };
 
   return (
@@ -159,8 +152,8 @@ export function Bubble({
               : reduced
                 ? { opacity: 0 }
                 : isMain
-                  ? { scale: 0.25, opacity: 0 }
-                  : { x: spawnOffset.dx, y: spawnOffset.dy, scale: 0.08, opacity: 1 }
+                  ? { scale: 0.94, opacity: 0 }
+                  : { x: spawnOffset.dx, y: spawnOffset.dy, scale: 1, opacity: 1 }
           }
           animate={buttonAnimate}
           transition={buttonTransition}
@@ -195,7 +188,20 @@ export function Bubble({
           >
             <i className="bubble-glints" aria-hidden="true" />
           </motion.div>
-          <span className={`bubble-label${isMain ? ' bubble-label--main' : ''}`}>{def.label}</span>
+          <motion.span
+            className={`bubble-label${isMain ? ' bubble-label--main' : ''}`}
+            initial={mode === 'intro' && !isMain && !reduced ? { opacity: 0 } : false}
+            animate={{ opacity: 1 }}
+            transition={
+              mode === 'intro' && !isMain && !reduced
+                ? // Fade the label in once the bubble has cleared the main
+                  // bubble, so it doesn't show through the translucent glass.
+                  { duration: 0.5, delay: (def.emerge?.start ?? 0) + (def.emerge?.duration ?? 2) * 0.45 }
+                : { duration: 0 }
+            }
+          >
+            {def.label}
+          </motion.span>
         </motion.button>
 
         {popping && (
