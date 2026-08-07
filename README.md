@@ -1,9 +1,11 @@
 # Kaavya Vassa — Personal Website
 
-A playful bubble-themed personal website. On load, a girl rises from the
-bottom-right corner and blows five navigation bubbles — Education, Projects,
-Art, Experience, More about me — which float and morph in place until popped,
-opening the matching page.
+A bubble-themed personal website with an iridescent glass aesthetic. On
+load, a main bubble carrying Kaavya's name grows in at the center and four
+navigation bubbles — Education, Projects, Art, Experience — emerge out of
+it. All five float and morph in place until popped, bursting open into the
+matching page (the main bubble opens "More about me"). The sequence follows
+Kaavya's After Effects design (sources in `design/`).
 
 ## Stack
 
@@ -24,10 +26,9 @@ npm run preview  # serve the production build
 
 - The intro plays once per browser session (`sessionStorage`); returning to
   the home page shows the bubbles already settled.
-- The character art in `src/components/GirlPlaceholder.tsx` is a placeholder —
-  swap its contents for real artwork and, if the wand moves, tune `WAND_SPAWN`
-  in `src/data/bubbles.ts`.
 - Bubble labels, routes, positions, and sizes all live in
-  `src/data/bubbles.ts`.
+  `src/data/bubbles.ts` (`MAIN_BUBBLE` + `SATELLITE_BUBBLES`).
+- Kaavya's Adobe sources live in `design/` — see `design/README.md` for the
+  Lottie export path if the exact AE animation should replace the native one.
 - Deploys as a static SPA: `netlify.toml` and `vercel.json` both include the
   history-fallback rewrite.
