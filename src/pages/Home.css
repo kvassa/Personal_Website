@@ -1,0 +1,25 @@
+.home {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--page-wash);
+}
+
+.home__wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 75% 80%, rgba(163, 71, 235, 0.22), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 18% 18%, rgba(255, 255, 255, 0.45), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 88% 12%, rgba(73, 142, 245, 0.28), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (max-width: 640px) {
+  .home {
+    height: 100dvh;
+  }
+}

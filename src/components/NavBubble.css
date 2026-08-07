@@ -1,0 +1,234 @@
+.nav-bubble {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: default;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  overflow: visible;
+  -webkit-tap-highlight-color: transparent;
+  transform: translate(-50%, -50%) scale(0.05);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    left 1.35s cubic-bezier(0.22, 1, 0.36, 1),
+    top 1.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.35s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease;
+}
+
+.nav-bubble--flying {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: none;
+}
+
+.nav-bubble--idle {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+  cursor: pointer;
+  animation: bubble-drift 4s ease-in-out infinite alternate;
+}
+
+.nav-bubble--popping {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.35);
+  pointer-events: none;
+  transition:
+    transform 0.35s ease-in,
+    opacity 0.35s ease-in;
+  animation: none;
+}
+
+.nav-bubble--idle:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 6px;
+  border-radius: 50%;
+}
+
+.nav-bubble--idle:hover .nav-bubble__media {
+  transform: scale(1.05);
+  filter: brightness(1.06);
+}
+
+/* Neo CSS glass bubble disc */
+.nav-bubble__media {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.85;
+  pointer-events: none;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97%),
+    radial-gradient(circle at 70% 60%, rgba(81, 171, 255, 1) 0%, rgba(71, 134, 255, 0) 100%),
+    radial-gradient(circle at 40% 40%, rgba(181, 65, 236, 1) 0%, rgba(212, 65, 236, 0) 100%);
+  background-color: rgba(235, 111, 71, 0.8);
+  box-shadow:
+    inset -2px -2px 47px rgba(255, 255, 255, 0.22),
+    inset 10px 10px 99px rgba(255, 255, 255, 0.25);
+}
+
+.nav-bubble__media::before {
+  content: "";
+  position: absolute;
+  top: 40%;
+  left: 7%;
+  width: 26%;
+  height: 8%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  filter: blur(12px);
+}
+
+.nav-bubble__media::after {
+  content: "";
+  position: absolute;
+  top: 48%;
+  left: 8%;
+  width: 4%;
+  height: 4%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  filter: blur(6px);
+}
+
+/* Per-section variants from neo design */
+.nav-bubble--coral .nav-bubble__media {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97%),
+    radial-gradient(circle at 70% 60%, rgba(81, 171, 255, 1) 0%, rgba(71, 134, 255, 0) 100%),
+    radial-gradient(circle at 40% 40%, rgba(181, 65, 236, 1) 0%, rgba(212, 65, 236, 0) 100%);
+  background-color: rgba(235, 111, 71, 0.8);
+}
+
+.nav-bubble--projects .nav-bubble__media {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97%),
+    radial-gradient(circle at 70% 60%, rgba(65, 154, 236, 1) 0%, rgba(99, 65, 236, 0) 100%),
+    radial-gradient(circle at 30% 70%, rgba(236, 147, 65, 0.4) 0%, rgba(236, 178, 65, 0) 100%);
+  background-color: rgba(163, 71, 235, 1);
+  box-shadow:
+    inset -3px -3px 50px rgba(255, 255, 255, 0.22),
+    inset 10px 10px 107px rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(24px);
+}
+
+.nav-bubble--blue .nav-bubble__media {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97%),
+    radial-gradient(circle at 70% 60%, rgba(150, 65, 236, 1) 0%, rgba(99, 65, 236, 0) 100%),
+    radial-gradient(circle at 40% 40%, rgba(181, 65, 236, 1) 0%, rgba(212, 65, 236, 0) 100%);
+  background-color: rgba(73, 142, 245, 1);
+}
+
+.nav-bubble--violet .nav-bubble__media {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97%),
+    radial-gradient(circle at 70% 60%, rgba(65, 113, 236, 1) 0%, rgba(99, 65, 236, 0) 100%),
+    radial-gradient(circle at 40% 40%, rgba(236, 65, 167, 1) 0%, rgba(236, 65, 157, 0) 100%);
+  background-color: rgba(111, 71, 235, 1);
+}
+
+.nav-bubble--lilac .nav-bubble__media {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97%),
+    radial-gradient(circle at 70% 60%, rgba(65, 154, 236, 1) 0%, rgba(99, 65, 236, 0) 100%),
+    radial-gradient(circle at 40% 40%, rgba(181, 65, 236, 1) 0%, rgba(212, 65, 236, 0) 100%);
+  background-color: rgba(129, 110, 249, 1);
+}
+
+.nav-bubble__label {
+  position: relative;
+  z-index: 2;
+  max-width: 78%;
+  text-align: center;
+  font-size: clamp(0.95rem, 2.6vmin, 1.65rem);
+  pointer-events: none;
+  word-break: break-word;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.nav-bubble__burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.nav-bubble__shard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fff 0%,
+    rgba(163, 71, 235, 0.7) 55%,
+    transparent 70%
+  );
+  animation: shard-fly 0.4s ease-out forwards;
+  --angle: calc(var(--i) * 45deg);
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
+}
+
+@keyframes shard-fly {
+  to {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-70px);
+    opacity: 0;
+    width: 4px;
+    height: 4px;
+  }
+}
+
+@keyframes bubble-drift {
+  0% {
+    translate: 0 0;
+    rotate: -2deg;
+  }
+  50% {
+    translate: 6px -8px;
+    rotate: 2deg;
+  }
+  100% {
+    translate: -5px 5px;
+    rotate: -1deg;
+  }
+}
+
+.nav-bubble--idle:nth-child(2) {
+  animation-duration: 4.6s;
+  animation-delay: -0.8s;
+}
+.nav-bubble--idle:nth-child(3) {
+  animation-duration: 3.8s;
+  animation-delay: -1.4s;
+}
+.nav-bubble--idle:nth-child(4) {
+  animation-duration: 5s;
+  animation-delay: -0.3s;
+}
+.nav-bubble--idle:nth-child(5) {
+  animation-duration: 4.2s;
+  animation-delay: -2s;
+}
+
+@media (max-width: 640px) {
+  .nav-bubble__label {
+    font-size: clamp(0.75rem, 3.2vmin, 1.1rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-bubble {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

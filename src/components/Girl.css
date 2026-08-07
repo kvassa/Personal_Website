@@ -1,0 +1,79 @@
+.girl {
+  position: absolute;
+  right: clamp(0.5rem, 3vw, 2rem);
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(42vw, 280px);
+  pointer-events: none;
+  will-change: transform;
+  transform: translateY(0);
+  animation: girl-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.girl--enter {
+  animation: girl-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.girl--in {
+  transform: translateY(0);
+  animation: none;
+}
+
+.girl--exit {
+  animation: girl-drop 0.75s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+}
+
+.girl__name {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.35rem, 3.5vw, 2.15rem);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.girl__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+@keyframes girl-rise {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes girl-drop {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(120%);
+  }
+}
+
+@media (max-width: 640px) {
+  .girl {
+    width: min(48vw, 180px);
+    right: 0.25rem;
+  }
+
+  .girl__name {
+    font-size: clamp(1rem, 4.5vw, 1.35rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .girl,
+  .girl--enter,
+  .girl--exit {
+    animation: none;
+    transform: translateY(0);
+  }
+}
