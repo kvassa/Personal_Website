@@ -1,141 +1,84 @@
+/* Kaavya's comp is on a black canvas — matched here for the landing page only. */
+.home {
+  background: #000;
+}
+
+/* ---------------------------------------------------------------------
+ * Goo layer: the visible, colored bubbles (BubbleGoo). Filtered as one
+ * shared group through the SVG "bubble-goo" filter so overlapping bubbles
+ * bridge into each other — like Kaavya's After Effects adjustment layer
+ * (Gaussian Blur + Simple Choker + Turbulent Displace) — while separated
+ * bubbles render crisp, since blur+choke on an isolated shape just gives
+ * the shape back.
+ * ------------------------------------------------------------------- */
+.bubble-goo-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  filter: url(#bubble-goo);
+}
+
+.goo-anchor {
+  position: fixed;
+  transform: translate(-50%, -50%);
+}
+
+.goo-anchor--main {
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------
+ * Interactive layer: invisible hit areas + labels, unfiltered so text and
+ * click targets stay crisp on top of the goo layer beneath.
+ * ------------------------------------------------------------------- */
 .bubble-anchor {
   position: fixed;
   transform: translate(-50%, -50%);
-  z-index: 5;
+  z-index: 6;
 }
 
 /* The main bubble sits above the satellites so they appear to slip out
    from behind it while emerging */
 .bubble-anchor--main {
-  z-index: 6;
+  z-index: 7;
 }
 
 .bubble-button {
-  /* --d (bubble diameter) is set inline per bubble; every glassy detail
-     below scales from it so all sizes render proportionally. */
+  /* --d (bubble diameter) is set inline per bubble, matching this button's
+     BubbleGoo counterpart so the hit area covers the visible blob. */
   --d: 180px;
   display: block;
   position: relative;
+  width: var(--d);
+  height: var(--d);
   padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 /*
- * Iridescent glass bubble, translated from the reference design:
- * a stack of soft radial color glows over a translucent base, white inset
- * glow, a large blurred white rim, and small blurred arc highlights.
- * Per-bubble hues come from the --base / --glow-a / --glow-b variables.
+ * Bubble skin, matched to Kaavya's actual After Effects render: a crisp,
+ * fully opaque circle with a smooth radial blend from the inner core color
+ * (--inner) at the center to the outer glow color (--outer) at the edge —
+ * solid through the true inner-circle radius (--inner-stop), then blending
+ * over the remaining radius, exactly like the comp's two concentric
+ * ellipses. No highlight, no translucency, no blur.
  */
 .bubble-skin {
-  --base: #816ef9;
-  --glow-a: #419aec;
-  --glow-b: #b541ec;
+  --inner: #816ef9;
+  --outer: #419aec;
+  --inner-stop: 65%;
   position: relative;
   width: var(--d);
   height: var(--d);
   border-radius: 50%;
-  opacity: 0.85;
-  background:
-    radial-gradient(71.34% 71.34% at 20.03% 18.21%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 97.45%),
-    radial-gradient(58.36% 58.36% at 13.41% 63.07%, var(--glow-a) 0%, rgba(99, 65, 236, 0) 100%),
-    radial-gradient(45.73% 45.73% at 70.47% 50%, var(--glow-b) 0%, rgba(212, 65, 236, 0) 100%),
-    var(--base);
-  box-shadow:
-    inset calc(var(--d) * 0.026) calc(var(--d) * 0.026) calc(var(--d) * 0.262) rgba(255, 255, 255, 0.25),
-    inset calc(var(--d) * -0.0064) calc(var(--d) * -0.0064) calc(var(--d) * 0.123) rgba(255, 255, 255, 0.22);
+  background: radial-gradient(circle at 50% 50%, var(--inner) 0%, var(--inner) var(--inner-stop), var(--outer) 100%);
 }
 
-/* Large soft white rim hugging the bubble's edge */
-.bubble-skin::before {
-  content: '';
-  position: absolute;
-  inset: calc(var(--d) * -0.016);
-  border-radius: inherit; /* follows the blob morph so the rim never detaches */
-  border: calc(var(--d) * 0.091) solid #ffffff;
-  filter: blur(calc(var(--d) * 0.061));
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-/* Main arc highlight, upper left */
-.bubble-skin::after {
-  content: '';
-  position: absolute;
-  left: 27%;
-  top: 24%;
-  width: 26%;
-  height: 8.5%;
-  border-radius: 50%;
-  background: #ffffff;
-  filter: blur(calc(var(--d) * 0.022));
-  transform: rotate(-39deg);
-  pointer-events: none;
-}
-
-/* Two small glint dots trailing below the arc highlight */
-.bubble-glints {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.bubble-glints::before {
-  content: '';
-  position: absolute;
-  left: 25.5%;
-  top: 48%;
-  width: 4%;
-  height: 4%;
-  border-radius: 50%;
-  background: #ffffff;
-  filter: blur(calc(var(--d) * 0.012));
-}
-
-.bubble-glints::after {
-  content: '';
-  position: absolute;
-  left: 22.5%;
-  top: 54%;
-  width: 4%;
-  height: 6.5%;
-  border-radius: 50%;
-  background: #ffffff;
-  filter: blur(calc(var(--d) * 0.014));
-  transform: rotate(13deg);
-}
-
-/* Per-bubble iridescent palettes, sampled from the reference frame */
-.bubble-skin--education {
-  --base: #816ef9;
-  --glow-a: #419aec;
-  --glow-b: #b541ec;
-}
-
-.bubble-skin--projects {
-  --base: #a347eb;
-  --glow-a: #53acff;
-  --glow-b: rgba(236, 147, 65, 0.4);
-}
-
-.bubble-skin--art {
-  --base: #498ef5;
-  --glow-a: #9641ec;
-  --glow-b: #b541ec;
-}
-
-.bubble-skin--experience {
-  --base: rgba(235, 111, 71, 0.8);
-  --glow-a: #51abff;
-  --glow-b: #b541ec;
-}
-
-.bubble-skin--about {
-  --base: rgba(163, 71, 235, 0.6);
-  --glow-a: rgba(236, 116, 65, 0.5);
-  --glow-b: rgba(120, 65, 236, 0.8);
-}
-
-/* Label sits above the translucent skin so text stays crisp */
+/* Label sits above the skin so text stays crisp */
 .bubble-label {
   position: absolute;
   inset: 0;

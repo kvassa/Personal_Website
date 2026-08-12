@@ -36,9 +36,10 @@ export function PageLayout({ title, children }: PageLayoutProps) {
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
       >
-        <div className="bubble-skin">
-          <i className="bubble-glints" aria-hidden="true" />
-        </div>
+        <div
+          className="bubble-skin"
+          style={{ ['--inner' as string]: '#ff00c4', ['--outer' as string]: '#6301ff', ['--inner-stop' as string]: '22%' }}
+        />
         <span className="bubble-label">Home</span>
       </motion.button>
 

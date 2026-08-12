@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import type { BubbleDef } from '../data/bubbles';
+import { COMP_H, COMP_W, createWobble, samplePath } from '../utils/aeMotion';
 
 interface BubbleProps {
   def: BubbleDef;
@@ -18,18 +19,16 @@ interface BubbleProps {
   onPopStart: (id: BubbleDef['id']) => void;
 }
 
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
-
-/** Random organic 8-value border-radius, e.g. "46% 54% 58% 42% / 44% 57% 43% 56%". */
-function blobRadius(): string {
-  const r = () => `${Math.round(rand(44, 56))}%`;
-  return `${r()} ${r()} ${r()} ${r()} / ${r()} ${r()} ${r()} ${r()}`;
-}
-
-const CIRCLE = '50% 50% 50% 50% / 50% 50% 50% 50%';
 const DROPLET_ANGLES = [0, 60, 120, 180, 240, 300].map((deg) => (deg * Math.PI) / 180);
 
-
+/**
+ * The invisible, interactive half of a bubble: a hit area plus its label,
+ * carried on the exact same deterministic path/wobble math as the visible
+ * blob rendered by BubbleGoo underneath (see aeMotion's createWobble /
+ * samplePath) — computed independently here rather than shared, so the
+ * label rides with the blob without the two components needing to
+ * coordinate state. Handles click/pop/navigate.
+ */
 export function Bubble({
   def,
   index,
@@ -60,22 +59,9 @@ export function Bubble({
     };
   }, [isMain, anchor.x, anchor.y, spawnPoint]);
 
-  // Per-bubble randomized idle-wobble parameters, generated once so each
-  // bubble drifts and morphs with its own rhythm while staying at its anchor
-  // (drift keyframes orbit 0, so the bubble never leaves its relative space).
-  const wobble = useMemo(
-    () => ({
-      driftX: [0, rand(-16, 16), rand(-12, 12), 0],
-      driftY: [0, rand(-14, 14), rand(-16, 16), 0],
-      driftDuration: rand(6, 10),
-      driftDelay: rand(0, 1.5),
-      morphKeys: [CIRCLE, blobRadius(), blobRadius(), blobRadius(), CIRCLE],
-      morphDuration: rand(5, 8),
-      squishX: [1, 1.04, 0.97, 1.02, 1],
-      squishY: [1, 0.96, 1.05, 0.98, 1],
-    }),
-    [],
-  );
+  // Deterministic per-bubble idle-wobble parameters (same seed BubbleGoo
+  // uses), so the label drifts in lockstep with the visible blob beneath it.
+  const wobble = useMemo(() => createWobble(def.id), [def.id]);
 
   const handlePop = () => {
     // Not poppable until fully emerged and settled at its anchor.
@@ -90,30 +76,21 @@ export function Bubble({
 
   const wobbling = settled && !reduced && !popping;
 
-  // Smooth curved glide from behind the main bubble to the anchor: a
-  // quadratic bezier (control point bowed perpendicular to the travel line,
-  // alternating side per bubble) sampled densely with the ease baked into
-  // the sample spacing. Segments then play with linear timing, giving one
-  // continuous curve and one continuous speed profile — no corners, no
-  // mid-flight re-acceleration.
+  // Kaavya's literal After Effects spatial-bezier path (design/Website2.json
+  // "to"/"ti" tangent handles), sampled in comp-pixel space with AE's own
+  // temporal ease, then converted to on-screen offset from this bubble's
+  // anchor so the sampled path lands exactly at 0,0.
   const path = useMemo(() => {
-    const { dx, dy } = spawnOffset;
-    const len = Math.hypot(dx, dy) || 1;
-    const bow = len * 0.08 * (index % 2 === 0 ? 1 : -1);
-    const cx = dx * 0.5 + (-dy / len) * bow;
-    const cy = dy * 0.5 + (dx / len) * bow;
-    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-    const STEPS = 16;
-    const xs: number[] = [];
-    const ys: number[] = [];
-    for (let i = 0; i <= STEPS; i++) {
-      const t = easeInOut(i / STEPS);
-      const u = 1 - t;
-      xs.push(u * u * dx + 2 * u * t * cx); // t² term is 0 (end point 0,0)
-      ys.push(u * u * dy + 2 * u * t * cy);
-    }
-    return { x: xs, y: ys };
-  }, [spawnOffset, index]);
+    if (!def.segments || typeof window === 'undefined') return { x: [0], y: [0], times: [0] };
+    const sampled = samplePath(def.segments);
+    const anchorPxX = (anchor.x / 100) * window.innerWidth;
+    const anchorPxY = (anchor.y / 100) * window.innerHeight;
+    return {
+      x: sampled.xs.map((x) => (x / COMP_W) * window.innerWidth - anchorPxX),
+      y: sampled.ys.map((y) => (y / COMP_H) * window.innerHeight - anchorPxY),
+      times: sampled.times,
+    };
+  }, [def.segments, anchor.x, anchor.y]);
 
   // x/y stay pinned at 0 in the pop target — omitting them would make Motion
   // animate them back to their `initial` spawn-offset values mid-pop.
@@ -145,6 +122,7 @@ export function Bubble({
         : {
             duration: reduced ? 0.3 : (def.emerge?.duration ?? 1.9),
             delay: reduced ? index * 0.05 : (def.emerge?.start ?? 0),
+            times: reduced ? undefined : path.times,
             ease: 'linear' as const,
           };
 
@@ -197,25 +175,6 @@ export function Bubble({
             }
           }}
         >
-          <motion.div
-            className={`bubble-skin bubble-skin--${def.id}`}
-            animate={
-              wobbling
-                ? {
-                    borderRadius: wobble.morphKeys,
-                    scaleX: wobble.squishX,
-                    scaleY: wobble.squishY,
-                  }
-                : { borderRadius: CIRCLE, scaleX: 1, scaleY: 1 }
-            }
-            transition={
-              wobbling
-                ? { duration: wobble.morphDuration, repeat: Infinity, ease: 'easeInOut' }
-                : { duration: 0.2 }
-            }
-          >
-            <i className="bubble-glints" aria-hidden="true" />
-          </motion.div>
           <motion.span
             className={`bubble-label${isMain ? ' bubble-label--main' : ''}`}
             initial={mode === 'intro' && !isMain && !reduced ? { opacity: 0 } : false}
@@ -223,7 +182,7 @@ export function Bubble({
             transition={
               mode === 'intro' && !isMain && !reduced
                 ? // Fade the label in once the bubble has cleared the main
-                  // bubble, so it doesn't show through the translucent glass.
+                  // bubble, so it doesn't show through the still-merging goo.
                   { duration: 0.5, delay: (def.emerge?.start ?? 0) + (def.emerge?.duration ?? 2) * 0.45 }
                 : { duration: 0 }
             }
